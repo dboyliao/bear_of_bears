@@ -47,8 +47,14 @@ def optimize_equip(
         equipments, attack_weight, defense_weight, intelligence_weight
     )
     click.echo("Best combination of equipments:")
+    total_attack = sum(equip.attack for equip in best_combination)
+    total_defense = sum(equip.defense for equip in best_combination)
+    total_intelligence = sum(equip.intelligence for equip in best_combination)
     for equip in best_combination:
         click.echo(f"  - {equip!s}")
+    click.echo(
+        f"Total ATK: +{total_attack}, Total DEF: +{total_defense}, Total INT: +{total_intelligence}"
+    )
 
 
 def optimize_equipment(
