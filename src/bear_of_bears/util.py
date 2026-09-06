@@ -24,7 +24,7 @@ _EMOJI_PATTERN = re.compile(
     "\U00002b00-\U00002bff"  # 雜項符號與箭頭
     "\U0001f1e6-\U0001f1ff"  # 區域指示符
     "\U0000fe00-\U0000fe0f"  # 變體選擇符
-    "\U0000200d"             # 零寬連接符（ZWJ）
+    "\U0000200d"  # 零寬連接符（ZWJ）
     "]+"
 )
 
@@ -32,14 +32,15 @@ _EMOJI_PATTERN = re.compile(
 def _strip_emoji(name: str) -> str:
     return _EMOJI_PATTERN.sub("", name).strip()
 
+
 # 依關鍵字判斷裝備欄位，順序即優先序（越前面越優先）
 _SLOT_KEYWORDS: list[tuple[Slot, tuple[str, ...]]] = [
     (Slot.HAND, ("護手",)),
     (Slot.SHOES, ("靴",)),
     (Slot.HEAD, ("冠", "盔")),
-    (Slot.ACCESSORY, ("環", "符", "典", "戒", "墜")),
+    (Slot.ACCESSORY, ("環", "符", "戒", "墜")),
     (Slot.BODY, ("鎧", "甲")),
-    (Slot.WEAPON, ("劍", "斧", "爪", "杖", "刃", "角", "棒", "槍", "弓")),
+    (Slot.WEAPON, ("法典", "劍", "斧", "爪", "杖", "刃", "角", "棒", "槍", "弓")),
 ]
 
 # 標籤對應到 Equipment 的欄位名稱
