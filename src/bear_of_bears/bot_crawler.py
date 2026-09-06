@@ -28,10 +28,10 @@ _TARGET_BOT = "BearOfBearsBot"
 def crawl(*args, **kwargs): ...
 
 
-@crawl.command()
-@click.option("--output", default="inventory.json", help="output file path")
+@crawl.command(name="inventory")
+@click.option("--output", "-o", default="inventory.json", help="output file path")
 @click.pass_context
-def inventory(ctx: click.Context, output: str):
+def inventory_command(ctx: click.Context, output: str):
     _inventory(output=output, **ctx.parent.params)
 
 

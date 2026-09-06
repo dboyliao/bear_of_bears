@@ -9,7 +9,7 @@ from .cli import bear_of_bears
 from .data import Equipment, Slot
 
 
-@bear_of_bears.command()
+@bear_of_bears.command(name="optimize-equip")
 @click.argument("equipments_file", type=click.Path(exists=True))
 @click.option(
     "--attack-weight", "-a", default=1.0, type=float, help="weight for attack"
@@ -31,7 +31,7 @@ from .data import Equipment, Slot
     type=float,
     help="weight for agility",
 )
-def optimize_equip(
+def optimize_equip_command(
     equipments_file,
     attack_weight: float,
     defense_weight: float,
