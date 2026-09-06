@@ -23,4 +23,10 @@ build-backend = "hatchling.build"
 packages = ["src/bear_of_bears"]
 
 [dependency-groups]
-dev = ["black>=26.5.1", "flake8>=7.3.0", "ipython>=9.16.1", "isort>=8.0.1"]
+dev = [
+    "black>=26.5.1",
+ "flake8>=7.3.0",
+ "ipykernel>=7.3.0",
+ "ipython>=9.16.1",
+ "isort>=8.0.1",
+]
