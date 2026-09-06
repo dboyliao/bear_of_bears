@@ -18,6 +18,7 @@ class Equipment:
     attack: int = 0
     defense: int = 0
     intelligence: int = 0
+    agility: int = 0
 
     def json(self) -> dict:
         return {
@@ -26,7 +27,8 @@ class Equipment:
             "attack": self.attack,
             "defense": self.defense,
             "intelligence": self.intelligence,
+            "agility": self.agility,
         }
 
     def __str__(self) -> str:
-        return f"{self.name} ({self.slot.name}) ATK: {self.attack}, DEF: {self.defense}, INT: {self.intelligence}"
+        return f"{self.name} ({self.slot.name}) ATK: {self.attack}, DEF: {self.defense}, INT: {self.intelligence}, AGI: {self.agility}"

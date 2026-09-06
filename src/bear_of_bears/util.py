@@ -11,10 +11,10 @@ async def return_none():
 _ITEM_PATTERN = re.compile(r"^\s*\d+\.\s*(?P<body>.+?)\s*$")
 
 # 括號內帶箭頭的強化數值，例：ATK 310→347（取箭頭右側）
-_REFINED_ITEM_PATTERN = re.compile(r"(?P<label>ATK|DEF|INT)\s*\d+\s*→\s*(?P<value>\d+)")
+_REFINED_ITEM_PATTERN = re.compile(r"(?P<label>ATK|DEF|INT|AGI)\s*\d+\s*→\s*(?P<value>\d+)")
 
-# 描述文字的加成，例：攻擊 +139、防禦 +86、INT +86
-_DESC_RE = re.compile(r"(?P<label>攻擊|防禦|智力|INT|ATK|DEF)\s*\+\s*(?P<value>\d+)")
+# 描述文字的加成，例：攻擊 +139、防禦 +86、INT +86、敏捷 +94
+_DESC_RE = re.compile(r"(?P<label>攻擊|防禦|智力|敏捷|INT|ATK|DEF|AGI)\s*\+\s*(?P<value>\d+)")
 
 # 裝備名稱中的 emoji / 符號（含稀有度、類型圖示、變體選擇符、ZWJ）
 _EMOJI_PATTERN = re.compile(
@@ -51,6 +51,8 @@ _LABEL2FIELD = {
     "防禦": "defense",
     "INT": "intelligence",
     "智力": "intelligence",
+    "AGI": "agility",
+    "敏捷": "agility",
 }
 
 
@@ -72,7 +74,7 @@ def parse_inventory_message(message: str) -> list[Equipment]:
         # 名稱：取到第一個空白為止，並去除稀有度/類型 emoji
         name = _strip_emoji(body.split(maxsplit=1)[0])
 
-        stats = {"attack": 0, "defense": 0, "intelligence": 0}
+        stats = {"attack": 0, "defense": 0, "intelligence": 0, "agility": 0}
 
         # 出現 ✨+N 等強化字樣時，最終數值以括號內箭頭右側為準；
         # 括號內帶箭頭的數值只在強化裝上出現，故優先採用。

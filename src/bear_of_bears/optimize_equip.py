@@ -24,11 +24,19 @@ from .data import Equipment, Slot
     type=float,
     help="weight for intelligence",
 )
+@click.option(
+    "--agility-weight",
+    "-g",
+    default=1.0,
+    type=float,
+    help="weight for agility",
+)
 def optimize_equip(
     equipments_file,
     attack_weight: float,
     defense_weight: float,
     intelligence_weight: float,
+    agility_weight: float,
 ):
     equipments_file = Path(equipments_file)
     with equipments_file.open("r", encoding="utf-8") as f:
@@ -40,31 +48,37 @@ def optimize_equip(
                 attack=equip["attack"],
                 defense=equip["defense"],
                 intelligence=equip["intelligence"],
+                agility=equip["agility"],
             )
             for equip in equipments
         ]
     best_combination = optimize_equipment(
-        equipments, attack_weight, defense_weight, intelligence_weight
+        equipments, attack_weight, defense_weight, intelligence_weight, agility_weight
     )
     click.echo("Best combination of equipments:")
     total_attack = sum(equip.attack for equip in best_combination)
     total_defense = sum(equip.defense for equip in best_combination)
     total_intelligence = sum(equip.intelligence for equip in best_combination)
+    total_agility = sum(equip.agility for equip in best_combination)
     for equip in best_combination:
         click.echo(f"  - {equip!s}")
     click.echo(
-        f"Total ATK: +{total_attack}, Total DEF: +{total_defense}, Total INT: +{total_intelligence}"
+        f"Total ATK: +{total_attack}, Total DEF: +{total_defense}, Total INT: +{total_intelligence}, Total AGI: +{total_agility}"
     )
 
 
 def optimize_equipment(
-    equipments: list[Equipment], atk: float, deff: float, intel: float
+    equipments: list[Equipment],
+    atk: float,
+    deff: float,
+    intel: float,
+    agi: float,
 ) -> list[Equipment]:
     idx2equip = {idx: equip for idx, equip in enumerate(equipments)}
-    weights = np.array([deff, atk, intel], dtype=np.float64)
+    weights = np.array([deff, atk, intel, agi], dtype=np.float64)
     n = len(equipments)
     equip_matrix = np.zeros(
-        [n, 3],
+        [n, weights.shape[0]],
         dtype=int,
     )
     property_matrix = np.zeros(
@@ -75,6 +89,7 @@ def optimize_equipment(
         equip_matrix[idx, 0] = equip.defense
         equip_matrix[idx, 1] = equip.attack
         equip_matrix[idx, 2] = equip.intelligence
+        equip_matrix[idx, 3] = equip.agility
 
         property_matrix[idx, equip.slot] = 1
     x = []
