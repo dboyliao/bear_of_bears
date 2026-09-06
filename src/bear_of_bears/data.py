@@ -3,12 +3,12 @@ from enum import IntEnum
 
 
 class Slot(IntEnum):
-    HEAD = 0
-    BODY = 1
-    HAND = 2
-    SHOES = 3
-    WEAPON = 4
-    ACCESSORY = 5
+    BODY = 0
+    ACCESSORY = 1
+    HEAD = 2
+    WEAPON = 3
+    HAND = 4
+    SHOES = 5
 
 
 @dataclass

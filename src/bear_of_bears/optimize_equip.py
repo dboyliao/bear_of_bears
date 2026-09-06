@@ -106,5 +106,7 @@ def optimize_equipment(
     status = solver.Solve(model)
     if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
         selected_indices = [i for i in range(n) if solver.Value(x[i]) == 1]
-        return [idx2equip[idx] for idx in selected_indices]
+        return sorted(
+            [idx2equip[idx] for idx in selected_indices], key=lambda e: e.slot
+        )
     return []
