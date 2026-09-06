@@ -68,7 +68,17 @@ uv run bear-of-bears optimize-equip inventory.json -a 1.0 -d 1.0 -i 1.0
 | `--defense-weight` / `-d` | 防禦權重 | `1.0` |
 | `--intelligence-weight` / `-i` | 智力權重 | `1.0` |
 
-> `dismantle` 指令開發中。
+```bash
+$ bear-of-bears optimize-equip ./dev/inventory.json -d 3
+Best combination of equipments:
+  - 猛獁凍原重鎧·神 (BODY) ATK: 0, DEF: 1039, INT: 0, AGI: 0
+  - 熔鑄秘環 (ACCESSORY) ATK: 367, DEF: 367, INT: 367, AGI: 0
+  - 絕世霜寂頭冠·神 (HEAD) ATK: 0, DEF: 665, INT: 0, AGI: 0
+  - 裂界魔王龍骨劍·神 (WEAPON) ATK: 962, DEF: 0, INT: 0, AGI: 0
+  - 不朽永恆護手 (HAND) ATK: 78, DEF: 89, INT: 0, AGI: 0
+  - 傳世永恆戰靴 (SHOES) ATK: 0, DEF: 46, INT: 0, AGI: 102
+Total ATK: +1407, Total DEF: +2206, Total INT: +367, Total AGI: +102
+```
 
 ## References
 
