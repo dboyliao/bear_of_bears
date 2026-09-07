@@ -1,9 +1,16 @@
+import enum
 import re
+from typing import Optional
 
 import click
 import requests
+from telethon import TelegramClient
+from telethon.tl.custom.messagebutton import MessageButton
+from telethon.tl.types import Message
 
 from .data import Equipment, Slot
+
+_TARGET_BOT = "BearOfBearsBot"
 
 
 async def return_none():
@@ -129,3 +136,72 @@ def query_inventory(user: str) -> list[Equipment]:
         )
         return 1
     return parse_inventory(user_data)
+
+
+def is_respawn_message(message: str, boss: str) -> bool:
+    RESPAWN_PATTERN = re.compile(rf"重生中：.*{boss}\s+.*(\d+)秒")
+    return RESPAWN_PATTERN.search(message) is not None
+
+
+def is_home(message: str) -> bool:
+    return message.startswith("🏘️ 熊熊村廣場")
+
+
+def is_recall2_done(message: str) -> bool:
+    return message.startswith("💎 晶窟中繼站")
+
+
+async def get_last_reply(client: TelegramClient) -> Optional[Message]:
+    reply = await client.get_messages(_TARGET_BOT, limit=1)
+    if reply:
+        return reply[0]
+    return None
+
+
+_FIGHT_PATTERN = re.compile(r"^⚔️(.*)")
+
+
+def is_fight_button(button: MessageButton) -> (bool, str):
+    if button.text:
+        match = _FIGHT_PATTERN.match(button.text)
+        if match:
+            return True, match.group(1)
+    return False, ""
+
+
+def flatten(ll: list, acc: list = None) -> list:
+    if acc is None:
+        acc = []
+    for item in ll:
+        if not isinstance(item, list):
+            acc.append(item)
+        else:
+            acc = flatten(item, acc)
+    return acc
+
+
+class Direction(enum.Enum):
+    EAST = 1
+    WEST = 2
+    SOUTH = 3
+    NORTH = 4
+
+    __INV_MAPPING = {
+        EAST: WEST,
+        WEST: EAST,
+        NORTH: SOUTH,
+        SOUTH: NORTH,
+    }
+
+    def inverse(self) -> "Direction":
+        return self.from_int(self.__INV_MAPPING[self.value])
+
+    @classmethod
+    def from_int(cls, value: int) -> "Direction":
+        for direction in cls:
+            if direction.value == value:
+                return direction
+        raise ValueError(f"Invalid value for Direction: {value}")
+
+    def __str__(self) -> str:
+        return self.name.lower()
