@@ -5,6 +5,7 @@ __all__ = ["bear_of_bears"]
 
 load_dotenv(".env.local")
 
-@click.group(name='bear-of-bears')
+
+@click.group(name="bear-of-bears")
 def bear_of_bears():
     pass

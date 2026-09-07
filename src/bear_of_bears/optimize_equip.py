@@ -101,7 +101,7 @@ def optimize_equipment(
     constraints = property_matrix.T.dot(x)
     for constraint in constraints:
         model.add(constraint <= 1)
-    model.Maximize(obj)
+    model.maximize(obj)
     solver = cp_model.CpSolver()
     status = solver.Solve(model)
     if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:

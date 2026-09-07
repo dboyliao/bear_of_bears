@@ -3,17 +3,21 @@
 import argparse
 import json
 import math
-from pathlib import Path
 from fractions import Fraction
+from pathlib import Path
 
 STATS = ("attack", "defense", "intelligence", "agility")
 SLOTS = ("身體", "飾品", "頭部", "武器", "手部", "鞋子")
 
+type JSONValue = (
+    dict[str, JSONValue] | list[JSONValue] | str | int | float | bool | None
+)
+
 
 def load_items(path):
-    items = json.loads(Path(path).read_text(encoding="utf-8"))
+    items: JSONValue = json.loads(Path(path).read_text(encoding="utf-8"))
     if not isinstance(items, list):
-        raise ValueError(f"{path}：必須是 JSON 陣列")
+        raise TypeError(f"{path}：必須是 JSON 陣列")
     for index, item in enumerate(items, 1):
         if (
             not isinstance(item, dict)
@@ -79,7 +83,7 @@ def main():
     weights = [getattr(args, f"{stat}_weight") for stat in STATS]
     try:
         result = verify(load_items(args.inventory), load_items(args.selected), weights)
-    except (OSError, ValueError, OverflowError) as error:
+    except (OSError, TypeError, ValueError, OverflowError) as error:
         parser.exit(1, f"驗證失敗：{error}\n")
     print(json.dumps(result, ensure_ascii=False, indent=2))
 

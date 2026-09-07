@@ -32,6 +32,8 @@ def crawl(*args, **kwargs): ...
 @click.option("--output", "-o", default="inventory.json", help="output file path")
 @click.pass_context
 def inventory_command(ctx: click.Context, output: str):
+    if ctx.parent is None:
+        raise click.UsageError("inventory must be invoked under crawl")
     _inventory(output=output, **ctx.parent.params)
 
 
@@ -57,5 +59,6 @@ def _inventory(output: str, session: str, api_id: int, api_hash: str):
         return return_none()
 
     with client:
-        client.send_message(_TARGET_BOT, "/inventory")
+        # telethon.sync runs this call synchronously when the loop is stopped.
+        _ = client.send_message(_TARGET_BOT, "/inventory")
         client.run_until_disconnected()

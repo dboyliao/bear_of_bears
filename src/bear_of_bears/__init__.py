@@ -1,4 +1,4 @@
-from . import bot_crawler as _
-from . import dismantle as _
-from . import optimize_equip as _
-from .cli import *
+from . import bot_crawler, dismantle, optimize_equip
+from .cli import bear_of_bears
+
+__all__ = ["bear_of_bears", "bot_crawler", "dismantle", "optimize_equip"]
