@@ -11,10 +11,14 @@ async def return_none():
 _ITEM_PATTERN = re.compile(r"^\s*\d+\.\s*(?P<body>.+?)\s*$")
 
 # 括號內帶箭頭的強化數值，例：ATK 310→347（取箭頭右側）
-_REFINED_ITEM_PATTERN = re.compile(r"(?P<label>ATK|DEF|INT|AGI)\s*\d+\s*→\s*(?P<value>\d+)")
+_REFINED_ITEM_PATTERN = re.compile(
+    r"(?P<label>ATK|DEF|INT|AGI)\s*\d+\s*→\s*(?P<value>\d+)"
+)
 
 # 描述文字的加成，例：攻擊 +139、防禦 +86、INT +86、敏捷 +94
-_DESC_RE = re.compile(r"(?P<label>攻擊|防禦|智力|敏捷|INT|ATK|DEF|AGI)\s*\+\s*(?P<value>\d+)")
+_DESC_RE = re.compile(
+    r"(?P<label>攻擊|防禦|智力|敏捷|INT|ATK|DEF|AGI)\s*\+\s*(?P<value>\d+)"
+)
 
 # 裝備名稱中的 emoji / 符號（含稀有度、類型圖示、變體選擇符、ZWJ）
 _EMOJI_PATTERN = re.compile(
@@ -35,7 +39,7 @@ def _strip_emoji(name: str) -> str:
 
 # 依關鍵字判斷裝備欄位，順序即優先序（越前面越優先）
 _SLOT_KEYWORDS: list[tuple[Slot, tuple[str, ...]]] = [
-    (Slot.HAND, ("護手",)),
+    (Slot.HAND, ("護手", "手甲")),
     (Slot.SHOES, ("靴",)),
     (Slot.HEAD, ("冠", "盔")),
     (Slot.ACCESSORY, ("環", "符", "戒", "墜")),
