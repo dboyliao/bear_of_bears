@@ -1,13 +1,14 @@
 import json
 
 import click
-from telethon.sync import TelegramClient as Client
-from telethon.sync import events
+import requests
+import requests.exceptions
 
 from .cli import bear_of_bears
-from .util import parse_inventory_message, return_none
+from .util import parse_inventory
 
 _TARGET_BOT = "BearOfBearsBot"
+_USER_DARTA_URL = "https://lab4.kvzhuang.net/gen-art/bears-life-detail/"
 
 
 @bear_of_bears.group()
@@ -29,33 +30,38 @@ def crawl(*args, **kwargs): ...
 
 
 @crawl.command(name="inventory")
+@click.option("--user", "-u", required=True, help="user name")
 @click.option("--output", "-o", default="inventory.json", help="output file path")
-@click.pass_context
-def inventory_command(ctx: click.Context, output: str):
-    _inventory(output=output, **ctx.parent.params)
+def inventory_command(user: str, output: str):
+    return _inventory(output=output, user=user)
 
 
-def _inventory(output: str, session: str, api_id: int, api_hash: str):
-    client = Client(
-        session,
-        api_id=api_id,
-        api_hash=api_hash,
+def _inventory(output: str, user: str):
+    url = f"{_USER_DARTA_URL}?u={user}&format=json"
+    response = requests.get(url)
+    if response.status_code != 200:
+        click.secho(
+            f"Failed to fetch user data for {user}",
+            fg="red",
+        )
+        return 1
+    try:
+        user_data = response.json()
+    except requests.exceptions.JSONDecodeError:
+        click.secho(
+            f"Failed to parse user data for {user}",
+            fg="red",
+        )
+        return 1
+    equipments = parse_inventory(user_data)
+    click.secho(
+        f"Found {len(equipments)} equipments in inventory.", bold=True, color="white"
     )
-
-    @client.on(events.NewMessage(chats=_TARGET_BOT, pattern=r"^🎒 背包.*"))
-    def inventory_handler(event: events.NewMessage.Event):
-        equipments = parse_inventory_message(event.message.text)
-        click.echo(f"Found {len(equipments)} equipments in inventory.")
-        for equip in equipments:
-            click.echo(f"  - {equip!s}")
-        click.echo(f"Saving inventory to {output}...")
-        with open(output, "w", encoding="utf-8") as f:
-            json.dump(
-                [equip.json() for equip in equipments], f, indent=4, ensure_ascii=False
-            )
-        client.disconnect()
-        return return_none()
-
-    with client:
-        client.send_message(_TARGET_BOT, "/inventory")
-        client.run_until_disconnected()
+    for equip in equipments:
+        click.echo(f"- {equip}")
+    click.secho(f"Saving inventory to {output}...", bold=True, color="cyan")
+    with open(output, "w", encoding="utf-8") as f:
+        json.dump(
+            [equip.json() for equip in equipments], f, indent=4, ensure_ascii=False
+        )
+    return 0

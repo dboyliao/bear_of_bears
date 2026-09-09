@@ -39,8 +39,8 @@ def _strip_emoji(name: str) -> str:
 
 # 依關鍵字判斷裝備欄位，順序即優先序（越前面越優先）
 _SLOT_KEYWORDS: list[tuple[Slot, tuple[str, ...]]] = [
-    (Slot.HAND, ("護手", "手甲")),
-    (Slot.SHOES, ("靴",)),
+    (Slot.HANDS, ("護手", "手甲", "臂鎧")),
+    (Slot.FEET, ("靴",)),
     (Slot.HEAD, ("冠", "盔")),
     (Slot.ACCESSORY, ("環", "符", "戒", "墜")),
     (Slot.BODY, ("鎧", "甲")),
@@ -60,46 +60,48 @@ _LABEL2FIELD = {
 }
 
 
-def guess_slot(name: str) -> Slot:
+def guess_slot(name: str) -> str:
     for slot, keywords in _SLOT_KEYWORDS:
         if any(keyword in name for keyword in keywords):
-            return slot
-    return Slot.ACCESSORY
+            return slot.name
+    return Slot.ACCESSORY.name
 
 
-def parse_inventory_message(message: str) -> list[Equipment]:
+def parse_inventory(user_data: dict) -> list[Equipment]:
+    if "inventory" not in user_data:
+        return []
     equipment_list: list[Equipment] = []
-    for line in message.splitlines():
-        matched = _ITEM_PATTERN.match(line)
-        if matched is None:
+    item: dict
+    for item in user_data["inventory"]:
+        name = item.get("name", "")
+        if not name:
             continue
-        body = matched.group("body")
-
-        # 名稱：取到第一個空白為止，並去除稀有度/類型 emoji
-        name = _strip_emoji(body.split(maxsplit=1)[0])
-
-        stats = {"attack": 0, "defense": 0, "intelligence": 0, "agility": 0}
-
-        # 出現 ✨+N 等強化字樣時，最終數值以括號內箭頭右側為準；
-        # 括號內帶箭頭的數值只在強化裝上出現，故優先採用。
-        arrow_matches = list(_REFINED_ITEM_PATTERN.finditer(body))
-        if arrow_matches:
-            for m in arrow_matches:
-                stats[_LABEL2FIELD[m.group("label")]] = int(m.group("value"))
-        else:
-            for m in _DESC_RE.finditer(body):
-                stats[_LABEL2FIELD[m.group("label")]] = int(m.group("value"))
-
-        # 跳過任何沒有跟 ATK / DEF / INT 相關的項目
-        if not any(stats.values()):
+        stats = item.get(
+            "eff_stats",
+            item.get(
+                "stats",
+                {},
+            ),
+        )
+        if not stats:
             continue
+
+        stats_kwargs = {
+            "attack": stats.get("atk", 0),
+            "defense": stats.get("def", 0),
+            "intelligence": stats.get("int", 0),
+            "agility": stats.get("agi", 0),
+        }
+        slot = stats.get("slot", "")
+        if not slot:
+            slot = guess_slot(name)
 
         equipment_list.append(
             Equipment(
                 name=name,
                 # TODO: use /inspect to get slot info
-                slot=guess_slot(name),
-                **stats,
+                slot=Slot.from_str(slot),
+                **stats_kwargs,
             )
         )
     return equipment_list

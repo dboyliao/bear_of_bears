@@ -7,8 +7,12 @@ class Slot(IntEnum):
     ACCESSORY = 1
     HEAD = 2
     WEAPON = 3
-    HAND = 4
-    SHOES = 5
+    HANDS = 4
+    FEET = 5
+
+    @classmethod
+    def from_str(cls, slot_name: str) -> "Slot":
+        return cls[slot_name.upper()]
 
 
 @dataclass
