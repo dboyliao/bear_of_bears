@@ -1,14 +1,11 @@
 import json
 
 import click
-import requests
-import requests.exceptions
 
 from .cli import bear_of_bears
-from .util import parse_inventory
+from .util import query_inventory
 
 _TARGET_BOT = "BearOfBearsBot"
-_USER_DARTA_URL = "https://lab4.kvzhuang.net/gen-art/bears-life-detail/"
 
 
 @bear_of_bears.group()
@@ -33,27 +30,7 @@ def crawl(*args, **kwargs): ...
 @click.option("--user", "-u", required=True, help="user name")
 @click.option("--output", "-o", default="inventory.json", help="output file path")
 def inventory_command(user: str, output: str):
-    return _inventory(output=output, user=user)
-
-
-def _inventory(output: str, user: str):
-    url = f"{_USER_DARTA_URL}?u={user}&format=json"
-    response = requests.get(url)
-    if response.status_code != 200:
-        click.secho(
-            f"Failed to fetch user data for {user}",
-            fg="red",
-        )
-        return 1
-    try:
-        user_data = response.json()
-    except requests.exceptions.JSONDecodeError:
-        click.secho(
-            f"Failed to parse user data for {user}",
-            fg="red",
-        )
-        return 1
-    equipments = parse_inventory(user_data)
+    equipments = query_inventory(user=user)
     click.secho(
         f"Found {len(equipments)} equipments in inventory.", bold=True, color="white"
     )

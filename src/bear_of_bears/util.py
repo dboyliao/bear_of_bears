@@ -1,5 +1,8 @@
 import re
 
+import click
+import requests
+
 from .data import Equipment, Slot
 
 
@@ -59,6 +62,8 @@ _LABEL2FIELD = {
     "敏捷": "agility",
 }
 
+_USER_DARTA_URL = "https://lab4.kvzhuang.net/gen-art/bears-life-detail/"
+
 
 def guess_slot(name: str) -> str:
     for slot, keywords in _SLOT_KEYWORDS:
@@ -99,9 +104,28 @@ def parse_inventory(user_data: dict) -> list[Equipment]:
         equipment_list.append(
             Equipment(
                 name=name,
-                # TODO: use /inspect to get slot info
                 slot=Slot.from_str(slot),
                 **stats_kwargs,
             )
         )
     return equipment_list
+
+
+def query_inventory(user: str) -> list[Equipment]:
+    url = f"{_USER_DARTA_URL}?u={user}&format=json"
+    response = requests.get(url)
+    if response.status_code != 200:
+        click.secho(
+            f"Failed to fetch user data for {user}",
+            fg="red",
+        )
+        return 1
+    try:
+        user_data = response.json()
+    except requests.exceptions.JSONDecodeError:
+        click.secho(
+            f"Failed to parse user data for {user}",
+            fg="red",
+        )
+        return 1
+    return parse_inventory(user_data)

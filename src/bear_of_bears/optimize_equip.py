@@ -1,16 +1,14 @@
-import json
-from pathlib import Path
-
 import click
 import numpy as np
 from ortools.sat.python import cp_model
 
 from .cli import bear_of_bears
 from .data import Equipment, Slot
+from .util import query_inventory
 
 
 @bear_of_bears.command(name="optimize-equip")
-@click.argument("equipments_file", type=click.Path(exists=True))
+@click.argument("user", type=str)
 @click.option(
     "--attack-weight", "-a", default=1.0, type=float, help="weight for attack"
 )
@@ -32,26 +30,13 @@ from .data import Equipment, Slot
     help="weight for agility",
 )
 def optimize_equip_command(
-    equipments_file,
+    user: str,
     attack_weight: float,
     defense_weight: float,
     intelligence_weight: float,
     agility_weight: float,
 ):
-    equipments_file = Path(equipments_file)
-    with equipments_file.open("r", encoding="utf-8") as f:
-        equipments = json.load(f)
-        equipments = [
-            Equipment(
-                name=equip["name"],
-                slot=Slot(equip["slot"]),
-                attack=equip["attack"],
-                defense=equip["defense"],
-                intelligence=equip["intelligence"],
-                agility=equip["agility"],
-            )
-            for equip in equipments
-        ]
+    equipments = query_inventory(user=user)
     best_combination = optimize_equipment(
         equipments, attack_weight, defense_weight, intelligence_weight, agility_weight
     )
