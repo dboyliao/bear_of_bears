@@ -97,7 +97,7 @@ def parse_inventory(user_data: dict) -> list[Equipment]:
             "intelligence": stats.get("int", 0),
             "agility": stats.get("agi", 0),
         }
-        slot = stats.get("slot", "")
+        slot = item.get("slot", "")
         if not slot:
             slot = guess_slot(name)
 
