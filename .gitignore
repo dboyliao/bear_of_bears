@@ -13,3 +13,6 @@ wheels/
 
 # sessions
 *.session
+
+# inventory
+inventory.json
