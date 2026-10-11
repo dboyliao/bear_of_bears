@@ -119,7 +119,7 @@ def query_inventory(user: str) -> list[Equipment]:
             f"Failed to fetch user data for {user}",
             fg="red",
         )
-        return 1
+        return []
     try:
         user_data = response.json()
     except requests.exceptions.JSONDecodeError:
@@ -127,5 +127,5 @@ def query_inventory(user: str) -> list[Equipment]:
             f"Failed to parse user data for {user}",
             fg="red",
         )
-        return 1
+        return []
     return parse_inventory(user_data)

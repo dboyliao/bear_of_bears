@@ -37,9 +37,17 @@ def optimize_equip_command(
     agility_weight: float,
 ):
     equipments = query_inventory(user=user)
-    best_combination = optimize_equipment(
-        equipments, attack_weight, defense_weight, intelligence_weight, agility_weight
-    )
+    try:
+        best_combination = optimize_equipment(
+            equipments,
+            attack_weight,
+            defense_weight,
+            intelligence_weight,
+            agility_weight,
+        )
+    except Exception:
+        click.secho("Failed to optimize equipment", fg="red")
+        return
     click.echo("Best combination of equipments:")
     total_attack = sum(equip.attack for equip in best_combination)
     total_defense = sum(equip.defense for equip in best_combination)
